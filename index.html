@@ -172,16 +172,17 @@ var Rota = (function () {
 
   // The job list IS the rotation: each child moves one place along it every Monday.
   // Order set on 21 Sep 2026: High, Easy, Medium, Easy, High, Medium, so no two hard
-  // weeks touch. The `backup` field names the job whose holder is that job's backup:
-  // the two Easy jobs back up everything (Bathrooms covers the first three, Floors
-  // the last three), so nobody on a High or Medium job has a backup duty.
+  // weeks touch. The `backup` field names the job whose holder is that job's backup.
+  // Since 12 Oct 2026 the Floors, Bathrooms and Washing holders are the backups: each
+  // covers one heavier job and one of the other light jobs, so Washing Up, Table &
+  // Sides and Dishwasher holders have no backup duty.
   var JOBS = [
-    { id: 'washing-up', name: 'Washing Up',               icon: '🧽', load: 'High',   backup: 'bathrooms' },
-    { id: 'floors',     name: 'Floors',                   icon: '🧹', load: 'Easy',   backup: 'bathrooms' },
+    { id: 'washing-up', name: 'Washing Up',               icon: '🧽', load: 'High',   backup: 'floors' },
+    { id: 'floors',     name: 'Floors',                   icon: '🧹', load: 'Easy',   backup: 'washing' },
     { id: 'surfaces',   name: 'Table & Sides & Sofas',    icon: '🛋️', load: 'Medium', backup: 'bathrooms' },
     { id: 'bathrooms',  name: 'Bathrooms',                icon: '🚿', load: 'Easy',   backup: 'floors' },
-    { id: 'dishwasher', name: 'Dishwasher and Drying Up', icon: '🍽️', load: 'High',   backup: 'floors' },
-    { id: 'washing',    name: 'Washing',                  icon: '👕', load: 'Medium', backup: 'floors' }
+    { id: 'dishwasher', name: 'Dishwasher and Drying Up', icon: '🍽️', load: 'High',   backup: 'washing' },
+    { id: 'washing',    name: 'Washing',                  icon: '👕', load: 'Medium', backup: 'bathrooms' }
   ];
 
   // The children in rotation order: child i holds JOBS[i - weekOffset] in week 0.
@@ -657,7 +658,7 @@ if (typeof module !== 'undefined') module.exports = Rota;
       h += '<td class="cell" data-act="sheet" data-date="' + d.date + '"><span class="name">' + (d.busy.length ? d.busy.map(esc).join(', ') : '–') + '</span></td>';
     });
     h += '</tr></tbody></table></div>';
-    h += '<div class="legend"><span style="color:var(--backup)">🛟 that job\'s backup for the week (the Floors and Bathrooms holders)</span><span style="color:var(--cover)">■ covering for someone busy</span><span style="color:var(--warn)">■ final backups (Mum/Dad) cover</span></div>';
+    h += '<div class="legend"><span style="color:var(--backup)">🛟 that job\'s backup for the week (the Floors, Bathrooms and Washing holders)</span><span style="color:var(--cover)">■ covering for someone busy</span><span style="color:var(--warn)">■ final backups (Mum/Dad) cover</span></div>';
     return h;
   }
 
@@ -677,7 +678,7 @@ if (typeof module !== 'undefined') module.exports = Rota;
       h += '</tr>';
     }
     h += '</tbody></table></div>';
-    h += '<p class="note" style="margin-top:10px">Everyone moves one job along each Monday in this order: Washing Up → Floors → Table & Sides → Bathrooms → Dishwasher → Washing → back to Washing Up, so each child does all six jobs over six weeks and no two hard weeks touch. The two Easy jobs are the backups for the week: Bathrooms covers Washing Up, Floors and Table & Sides; Floors covers Bathrooms, Dishwasher and Washing.</p>';
+    h += '<p class="note" style="margin-top:10px">Everyone moves one job along each Monday in this order: Washing Up → Floors → Table & Sides → Bathrooms → Dishwasher → Washing → back to Washing Up, so each child does all six jobs over six weeks and no two hard weeks touch. The Floors, Bathrooms and Washing holders are the backups for the week: Floors covers Washing Up and Bathrooms, Bathrooms covers Table & Sides and Washing, Washing covers Dishwasher and Floors.</p>';
     return h;
   }
 
@@ -693,7 +694,7 @@ if (typeof module !== 'undefined') module.exports = Rota;
       '<div class="field"><label>Shift the job rotation</label><input type="number" id="f_weekOffset" value="' + s.weekOffset + '" step="1"></div>' +
       '<div class="field"><label>Final backups</label><input type="text" id="f_fallback" value="' + esc(s.fallback) + '"></div>' +
       '<div class="field"><label>If a job\'s backup is busy too</label><select id="f_coverMode"><option value="parents"' + (s.coverMode === 'parents' ? ' selected' : '') + '>Final backups (Mum/Dad) do it</option><option value="cascade"' + (s.coverMode === 'cascade' ? ' selected' : '') + '>The next child in the rotation does it</option></select></div>' +
-      '<p class="help">The two Easy jobs are the backups: whoever has Bathrooms backs up Washing Up, Floors and Table & Sides; whoever has Floors backs up Bathrooms, Dishwasher and Washing. The chain for each job is: job holder → that job\'s backup → final backups.</p>' +
+      '<p class="help">The Floors, Bathrooms and Washing holders are the backups: Floors covers Washing Up and Bathrooms, Bathrooms covers Table & Sides and Washing, Washing covers Dishwasher and Floors. The chain for each job is: job holder → that job\'s backup → final backups.</p>' +
       '<p class="help">Use the "shift" number if you want a different child to start on a given job without changing the start date.</p>' +
       '</div>';
 
