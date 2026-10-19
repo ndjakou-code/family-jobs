@@ -175,13 +175,15 @@ var Rota = (function () {
   // weeks touch. The `backup` field names the job whose holder is that job's backup.
   // Since 12 Oct 2026 the Floors, Bathrooms and Washing holders are the backups: each
   // covers one heavier job and one of the other light jobs, so Washing Up, Table &
-  // Sides and Dishwasher holders have no backup duty.
+  // Sides and Dishwasher holders have no backup duty. A job is never backed by the
+  // holder of the job one place before it, because that child did this job last week
+  // (rule of 19 Oct 2026).
   var JOBS = [
-    { id: 'washing-up', name: 'Washing Up',               icon: '🧽', load: 'High',   backup: 'floors' },
+    { id: 'washing-up', name: 'Washing Up',               icon: '🧽', load: 'High',   backup: 'bathrooms' },
     { id: 'floors',     name: 'Floors',                   icon: '🧹', load: 'Easy',   backup: 'washing' },
-    { id: 'surfaces',   name: 'Table & Sides & Sofas',    icon: '🛋️', load: 'Medium', backup: 'bathrooms' },
+    { id: 'surfaces',   name: 'Table & Sides & Sofas',    icon: '🛋️', load: 'Medium', backup: 'washing' },
     { id: 'bathrooms',  name: 'Bathrooms',                icon: '🚿', load: 'Easy',   backup: 'floors' },
-    { id: 'dishwasher', name: 'Dishwasher and Drying Up', icon: '🍽️', load: 'High',   backup: 'washing' },
+    { id: 'dishwasher', name: 'Dishwasher and Drying Up', icon: '🍽️', load: 'High',   backup: 'floors' },
     { id: 'washing',    name: 'Washing',                  icon: '👕', load: 'Medium', backup: 'bathrooms' }
   ];
 
@@ -678,7 +680,7 @@ if (typeof module !== 'undefined') module.exports = Rota;
       h += '</tr>';
     }
     h += '</tbody></table></div>';
-    h += '<p class="note" style="margin-top:10px">Everyone moves one job along each Monday in this order: Washing Up → Floors → Table & Sides → Bathrooms → Dishwasher → Washing → back to Washing Up, so each child does all six jobs over six weeks and no two hard weeks touch. The Floors, Bathrooms and Washing holders are the backups for the week: Floors covers Washing Up and Bathrooms, Bathrooms covers Table & Sides and Washing, Washing covers Dishwasher and Floors.</p>';
+    h += '<p class="note" style="margin-top:10px">Everyone moves one job along each Monday in this order: Washing Up → Floors → Table & Sides → Bathrooms → Dishwasher → Washing → back to Washing Up, so each child does all six jobs over six weeks and no two hard weeks touch. The Floors, Bathrooms and Washing holders are the backups for the week: Bathrooms covers Washing Up and Washing, Washing covers Floors and Table & Sides, Floors covers Bathrooms and Dishwasher. Nobody backs up the job they did the week before.</p>';
     return h;
   }
 
@@ -694,7 +696,7 @@ if (typeof module !== 'undefined') module.exports = Rota;
       '<div class="field"><label>Shift the job rotation</label><input type="number" id="f_weekOffset" value="' + s.weekOffset + '" step="1"></div>' +
       '<div class="field"><label>Final backups</label><input type="text" id="f_fallback" value="' + esc(s.fallback) + '"></div>' +
       '<div class="field"><label>If a job\'s backup is busy too</label><select id="f_coverMode"><option value="parents"' + (s.coverMode === 'parents' ? ' selected' : '') + '>Final backups (Mum/Dad) do it</option><option value="cascade"' + (s.coverMode === 'cascade' ? ' selected' : '') + '>The next child in the rotation does it</option></select></div>' +
-      '<p class="help">The Floors, Bathrooms and Washing holders are the backups: Floors covers Washing Up and Bathrooms, Bathrooms covers Table & Sides and Washing, Washing covers Dishwasher and Floors. The chain for each job is: job holder → that job\'s backup → final backups.</p>' +
+      '<p class="help">The Floors, Bathrooms and Washing holders are the backups: Bathrooms covers Washing Up and Washing, Washing covers Floors and Table & Sides, Floors covers Bathrooms and Dishwasher. Nobody backs up the job they did last week. The chain for each job is: job holder → that job\'s backup → final backups.</p>' +
       '<p class="help">Use the "shift" number if you want a different child to start on a given job without changing the start date.</p>' +
       '</div>';
 
